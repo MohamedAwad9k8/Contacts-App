@@ -1,34 +1,73 @@
 import { useState, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import "../css/App.css";
-import ListContacts from "./ListContacts";
-import CreateContact from "./CreateContact";
+import DisplayUsers from "./DisplayUsers";
+import SignUp from "./SignUp";
 import * as ContactsAPI from "../utils/ContactsAPI";
+import * as UsersAPI from "../utils/UsersAPI";
+import MainPage from "./MainPage";
+import Login from "./Login";
+
 
 const App = () => {
   let navigate = useNavigate();
-  const removeContact = (contact) => {
-    ContactsAPI.remove(contact);
-    setContacts(contacts.filter((c) => c.id !== contact.id));
-  };
-
-  const createContact = (contact) => {
+  const [users, setUsers] = useState([]);
+  const [loggedUser, setLoggedUser] = useState([]);
+  
+  // const removeContact = (contact) => {
+  //   ContactsAPI.remove(contact);
+  //   setContacts(contacts.filter((c) => c.id !== contact.id));
+  // };
+  //onDeleteContact={removeContact}
+  const handleSignUp = (user) => {
     const create = async () => {
-      const res = await ContactsAPI.create(contact);
-      setContacts([...contacts, res]);
+      const res = await UsersAPI.signUpUser(user);
+      setUsers([...users, res]);
     };
 
     create();
     navigate("/");
   };
-  const [contacts, setContacts] = useState([]);
+
+  const handleLogin = (user) => {
+    const login = async () => {
+      try {
+        const res = await UsersAPI.login(user);
+        const { accessToken, refreshToken } = res;
+
+        // Decode the base64-encoded payload of the access token
+        const decodedAccessToken = atob(accessToken.split('.')[1]);
+        const decodedAccessTokenObj = JSON.parse(decodedAccessToken);
+
+        const decodedRefreshToken = atob(refreshToken.split('.')[1]);
+        const decodedRefreshTokenObj = JSON.parse(decodedRefreshToken);
+
+        // Save the decoded information to loggedUser
+        setLoggedUser({
+          id: decodedRefreshTokenObj.id, // Assuming id is present in the access token
+          name: decodedAccessTokenObj.name, // Replace with the correct field name
+          email: decodedAccessTokenObj.email, // Replace with the correct field name
+          password: decodedAccessTokenObj.password, // Replace with the correct field name
+          accessToken,
+          refreshToken,
+        });
+      } catch (error) {
+        console.error('Error during login:', error);
+      }
+    };
+
+    login();
+    navigate('/');
+  };
+
+  
 
   useEffect(() => {
-    const getContacts = async () => {
-      const res = await ContactsAPI.getAll();
-      setContacts(res);
+    const getUsers = async () => {
+      const res = await UsersAPI.getAllUsers();
+      setUsers(res);
     };
-    getContacts();
+    getUsers();
   }, []);
 
   return (
@@ -37,15 +76,31 @@ const App = () => {
         exact
         path="/"
         element={
-          <ListContacts contacts={contacts} onDeleteContact={removeContact} />
+          <MainPage loggedUser={loggedUser} />
         }
       />
       <Route
         exact
-        path="/create"
+        path="/users"
         element={
-          <CreateContact
-            onCreateContact={(contact) => createContact(contact)}
+          <DisplayUsers users={users}  />
+        }
+      />
+      <Route
+        exact
+        path="/signup"
+        element={
+          <SignUp
+            onSignUp={(user) => handleSignUp(user)}
+          />
+        }
+      />
+      <Route
+        exact
+        path="/login"
+        element={
+          <Login
+            onLogin={(user) => handleLogin(user)}
           />
         }
       />

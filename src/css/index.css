@@ -190,3 +190,45 @@ body,
   cursor: pointer;
   outline: none;
 }
+
+.main-page-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #3498db; /* Use your desired background color */
+  color: #fff;
+}
+
+.main-page-content {
+  text-align: center;
+}
+
+.main-page-title {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.main-page-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.main-page-button {
+  margin: 0 10px;
+}
+
+.main-page-button button {
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #2ecc71; /* Use your desired button color */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.main-page-button button:hover {
+  background-color: #27ae60; /* Use a slightly darker shade on hover */
+}
